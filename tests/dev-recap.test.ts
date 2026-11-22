@@ -7,6 +7,7 @@ import { describe, it } from 'node:test';
 import { analyzeCommits, classifyCommit } from '../src/analyzer.js';
 import { generateChangelog } from '../src/changelog.js';
 import { parseGitLog } from '../src/git.js';
+import { parseRemoteRepo } from '../src/remote.js';
 
 function createTempGitRepo(): string {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dev-recap-test-'));
@@ -103,5 +104,23 @@ describe('dev-recap analyzer & CLI', () => {
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }
+  });
+
+  it('parses owner/repo and GitHub URLs while rejecting local paths', () => {
+    assert.deepEqual(parseRemoteRepo('BatuhanKlcky/dev-recap'), {
+      slug: 'BatuhanKlcky/dev-recap',
+      cloneUrl: 'https://github.com/BatuhanKlcky/dev-recap.git',
+      repoName: 'dev-recap',
+    });
+    assert.deepEqual(
+      parseRemoteRepo('https://github.com/BatuhanKlcky/dev-recap/'),
+      {
+        slug: 'BatuhanKlcky/dev-recap',
+        cloneUrl: 'https://github.com/BatuhanKlcky/dev-recap.git',
+        repoName: 'dev-recap',
+      },
+    );
+    assert.equal(parseRemoteRepo('./src'), null);
+    assert.equal(parseRemoteRepo('src'), null);
   });
 });

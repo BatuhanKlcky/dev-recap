@@ -24,6 +24,12 @@
 npx dev-recap
 ```
 
+Analyze any public GitHub repository remotely without cloning:
+
+```bash
+npx dev-recap BatuhanKlcky/dev-recap
+```
+
 Analyze only the last 30 days and show top 10 contributors/hotspots:
 
 ```bash
@@ -59,7 +65,7 @@ npx dev-recap --changelog CHANGELOG.md
 
 | Option | Description |
 | :--- | :--- |
-| `[path]` | Target git repository path (defaults to current working directory) |
+| `[target]` | Local git repository path, `owner/repo`, or GitHub URL (defaults to current working directory) |
 | `--days <n>` | Only analyze commits from the last `<n>` days |
 | `--top <n>` | Number of top contributors and hotspots to show (default: `5`) |
 | `--changelog [file]` | Generate Markdown changelog (stdout if no file given) |
