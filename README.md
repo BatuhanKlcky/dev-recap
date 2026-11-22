@@ -68,6 +68,19 @@ npx dev-recap --changelog CHANGELOG.md
 | `-h, --help` | Show help message |
 | `-v, --version` | Show version number |
 
+## GitHub Actions Usage
+
+Use `dev-recap` directly in your workflow (use `fetch-depth: 0` so full commit history is available):
+
+```yaml
+- uses: actions/checkout@v4
+  with:
+    fetch-depth: 0
+- uses: BatuhanKlcky/dev-recap@v1
+  with:
+    days: '30'
+```
+
 ## Contributing
 
 Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a Pull Request.

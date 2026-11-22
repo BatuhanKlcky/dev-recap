@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2026-11-23
+
+### Added
+- Official GitHub Action (`action.yml`) with `path`, `days`, and `top` inputs, outputs, and Markdown Job Summary.
+
 ## [1.0.0] - 2026-11-23
 
 ### Added

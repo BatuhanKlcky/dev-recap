@@ -1,0 +1,89 @@
+name: 'Dev Recap'
+description: 'Turn your Git history into colorful terminal stats, hotspot charts, and clean Job Summaries.'
+author: 'Batuhan Kılıçkaya'
+
+branding:
+  icon: 'bar-chart-2'
+  color: 'blue'
+
+inputs:
+  path:
+    description: 'Path to the git repository to analyze'
+    required: false
+    default: '.'
+  days:
+    description: 'Only analyze commits from the last N days (optional)'
+    required: false
+    default: ''
+  top:
+    description: 'Number of top contributors and hotspots to show'
+    required: false
+    default: '5'
+
+outputs:
+  total-commits:
+    description: 'Total commits analyzed'
+    value: ${{ steps.recap.outputs.total-commits }}
+  peak-weekday:
+    description: 'Most active weekday'
+    value: ${{ steps.recap.outputs.peak-weekday }}
+  longest-streak:
+    description: 'Longest commit streak in days'
+    value: ${{ steps.recap.outputs.longest-streak }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Build dev-recap
+      shell: bash
+      run: |
+        cd "${{ github.action_path }}"
+        npm ci --ignore-scripts
+        npm run build
+
+    - name: Run dev-recap
+      id: recap
+      shell: bash
+      env:
+        TARGET_PATH: ${{ inputs.path }}
+        DAYS_INPUT: ${{ inputs.days }}
+        TOP_INPUT: ${{ inputs.top }}
+      run: |
+        ARGS=("$TARGET_PATH" "--top" "$TOP_INPUT")
+        if [ -n "$DAYS_INPUT" ]; then
+          ARGS+=("--days" "$DAYS_INPUT")
+        fi
+
+        node "${{ github.action_path }}/dist/src/cli.js" "${ARGS[@]}" --no-color
+        node "${{ github.action_path }}/dist/src/cli.js" "${ARGS[@]}" --json > /tmp/dev-recap.json
+
+        TOTAL=$(node -e "const r=require('/tmp/dev-recap.json'); console.log(r.totalCommits)")
+        PEAK=$(node -e "const r=require('/tmp/dev-recap.json'); console.log(r.peakWeekday)")
+        STREAK=$(node -e "const r=require('/tmp/dev-recap.json'); console.log(r.longestStreakDays)")
+
+        echo "total-commits=$TOTAL" >> "$GITHUB_OUTPUT"
+        echo "peak-weekday=$PEAK" >> "$GITHUB_OUTPUT"
+        echo "longest-streak=$STREAK" >> "$GITHUB_OUTPUT"
+
+        node -e '
+          const fs = require("fs");
+          const r = JSON.parse(fs.readFileSync("/tmp/dev-recap.json", "utf8"));
+          const lines = [
+            `## Dev Recap — **${r.repoName}**`,
+            "",
+            `- **Commits:** ${r.totalCommits} (\`+${r.totalInsertions}\` / \`-${r.totalDeletions}\`)`,
+            `- **Active Days:** ${r.activeDays} | **Best Streak:** ${r.longestStreakDays}d | **Peak:** ${r.peakWeekday} @ ${String(r.peakHour).padStart(2, "0")}:00`,
+          ];
+          if (r.hotspots && r.hotspots.length > 0) {
+            lines.push("", "### Top Hotspots", "", "| File | Changes |", "| :--- | :--- |");
+            for (const h of r.hotspots) {
+              lines.push(`| \`${h.path}\` | ${h.touches} |`);
+            }
+          }
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n") + "\n");
+        '
