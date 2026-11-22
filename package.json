@@ -1,0 +1,47 @@
+{
+  "name": "dev-recap",
+  "version": "1.0.0",
+  "description": "Zero-dependency CLI that turns your Git history into colorful terminal stats, hotspot charts, and clean CHANGELOGs.",
+  "type": "module",
+  "bin": {
+    "dev-recap": "dist/src/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test dist/tests/*.test.js",
+    "start": "node dist/src/cli.js",
+    "prepublishOnly": "npm test"
+  },
+  "keywords": [
+    "git",
+    "cli",
+    "analytics",
+    "changelog",
+    "developer-tools",
+    "stats",
+    "terminal",
+    "recap"
+  ],
+  "author": "Batuhan Kılıçkaya",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BatuhanKlcky/dev-recap.git"
+  },
+  "homepage": "https://github.com/BatuhanKlcky/dev-recap#readme",
+  "bugs": {
+    "url": "https://github.com/BatuhanKlcky/dev-recap/issues"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}
