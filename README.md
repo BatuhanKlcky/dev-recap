@@ -6,6 +6,8 @@
 
 **Turn your Git history into colorful terminal stats, hotspot charts, and clean `CHANGELOG.md` files in one command.**
 
+![dev-recap terminal demo](assets/demo.gif)
+
 ## Features
 
 - **Zero runtime dependencies** — instant `npx dev-recap` startup
